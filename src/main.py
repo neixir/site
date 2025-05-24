@@ -41,8 +41,8 @@ def generate_page(basepath, from_path, template_path, dest_path):
 
     new_page = template.replace("{{ Title }}", title)
     new_page = new_page.replace("{{ Content }}", html)
-    new_page = new_page.replace('href="/', f'href={basepath}')
-    new_page = new_page.replace('src="/', f'src={basepath}')
+    new_page = new_page.replace('href="/', f'href="{basepath}')
+    new_page = new_page.replace('src="/', f'src="{basepath}')
     
     # Write the new full HTML page to a file at dest_path.
     # Be sure to create any necessary directories if they don't exist.
@@ -64,7 +64,7 @@ def generate_pages_recursive(basepath, source, template_path, destination):
 
 def main():
     basepath = "/"
-    if sys.argv[0] != "":
+    if sys.argv[1] != "":
         basepath = sys.argv[1]
     
     # It should first delete all the contents of the destination directory (public) to ensure that the copy is clean.
