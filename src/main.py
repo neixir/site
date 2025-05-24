@@ -1,4 +1,4 @@
-import os, shutil
+import os, shutil, sys
 from textnode import TextNode, TextType
 from htmlnode import HTMLNode, LeafNode, ParentNode
 from functions import markdown_to_html_node
@@ -28,7 +28,7 @@ def extract_title(markdown):
 
     return sections[1]
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(basepath, from_path, template_path, dest_path):
     print(f"Generating page from {from_path} to {dest_path} using {template_path}")
     
     with open(from_path) as f:
@@ -41,13 +41,15 @@ def generate_page(from_path, template_path, dest_path):
 
     new_page = template.replace("{{ Title }}", title)
     new_page = new_page.replace("{{ Content }}", html)
+    new_page = new_page.replace('href="/', f'href={basepath}')
+    new_page = new_page.replace('src="/', f'src={basepath}')
     
     # Write the new full HTML page to a file at dest_path.
     # Be sure to create any necessary directories if they don't exist.
     with open(dest_path,"w") as f:
         f.write(new_page)
 
-def generate_pages_recursive(source, template_path, destination):
+def generate_pages_recursive(basepath, source, template_path, destination):
     dir = os.listdir(source)
 
     for item in dir:
@@ -55,25 +57,26 @@ def generate_pages_recursive(source, template_path, destination):
         current_destination_path = os.path.join(destination, item)
         if os.path.isfile(current_source_path):
             destination_path = os.path.join(destination, item.replace(".md", ".html"))
-            generate_page(current_source_path, template_path, destination_path)
-            # print(f"Copied \"{current_source_path}\" to \"{destination_path}\"")
+            generate_page(basepath, current_source_path, template_path, destination_path)
         else:
             os.mkdir(current_destination_path)
-            # print(f"Creant directori {current_destination_path}")
-            # print(f"Nou origen {current_source_path}")
-            generate_all_pages(current_source_path, template_path, current_destination_path)
+            generate_pages_recursive(basepath, current_source_path, template_path, current_destination_path)
 
 def main():
+    basepath = "/"
+    if sys.argv[0] != "":
+        basepath = sys.argv[0]
+    
     # It should first delete all the contents of the destination directory (public) to ensure that the copy is clean.
     source_dir = "static"
-    destination_dir = "public"
+    destination_dir = "docs"
     if os.path.exists(destination_dir):
         shutil.rmtree(destination_dir)
     os.mkdir(destination_dir)
 
     copy_files(source_dir, destination_dir)
     
-    generate_pages_recursive("content", "template.html", "public")
+    generate_pages_recursive(basepath, "content", "template.html", "docs")
     
 
 main()
