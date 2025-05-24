@@ -65,7 +65,7 @@ def generate_pages_recursive(basepath, source, template_path, destination):
 def main():
     basepath = "/"
     if sys.argv[0] != "":
-        basepath = sys.argv[0]
+        basepath = sys.argv[1]
     
     # It should first delete all the contents of the destination directory (public) to ensure that the copy is clean.
     source_dir = "static"
